@@ -92,8 +92,8 @@ module.hydra_namespace = function()
         _registry               = { "mjolnir userdata uses the stack registry, not this one." },
         application             = my_require("application", "mjolnir.application"),
         audiodevice             = my_require("audiodevice", nil),
-        battery                 = my_require("battery", nil),
-        brightness              = my_require("brightness", nil),
+        battery                 = my_require("battery", "mjolnir._asm.sys.battery"),
+        brightness              = my_require("brightness", "mjolnir._asm.sys.brightness"),
         doc                     = my_require("doc", nil),
         eventtap                = my_require("eventtap", "mjolnir._asm.eventtap"),
         ext                     = {},
@@ -167,8 +167,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         logger                  = my_require("logger", nil),
         mouse                   = my_require("mouse", "mjolnir.jstevenson.cursor"),
         notify                  = my_require("notify", "mjolnir._asm.notify"),
-        pasteboard              = nil, -- see below
-        pathwatcher             = my_require("pathwatcher", "mjolnir._asm.pathwatcher"),
+        pasteboard              = my_require("pasteboard", "mjolnir._asm.data.pasteboard"),
+        pathwatcher             = my_require("pathwatcher", "mjolnir._asm.watcher.path"),
         repl                    = { open = mjolnir.openconsole, path = module._paths().bundlePath, },
         screen                  = my_require("screen", "mjolnir.screen"),
         spaces                  = nil, -- see below
@@ -177,6 +177,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         utf8                    = my_require("utf8", "mjolnir._asm.data.utf8_53"),
         window                  = my_require("window", "mjolnir.window"),
     }
+
+    if _H.battery then
+        _H.battery.watcher = my_require("battery.watcher", "mjolnir._asm.watcher.battery")
+    end
 
     --
     -- Some cleanup to make things more Hydra like...
@@ -191,15 +195,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         _H.spaces = undocumented.spaces
         _H.hydra.setosxshadows = undocumented.setosxshadows
     end
-    local data = my_require("hydra.pasteboard", "mjolnir._asm.data")
-    if type(data) == "table" then
-        _H.pasteboard = data.pasteboard
-    end
     if type(_H.utf8) == "table" then
         _H.utf8.count = _H.utf8.len
         _H.utf8.chars = function(str)
             local t = {}
-            str:gsub(utf8_53.charpatt,function(c) t[#r+1] = c end)
+            str:gsub(utf8_53.charpatt,function(c) t[#t+1] = c end)
             return t
         end
     end
